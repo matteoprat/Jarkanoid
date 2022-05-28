@@ -1,4 +1,4 @@
-package com.mygdx.game.settings;
+package settings;
 
 /**
  * It contains constants used to define window size, bricks size, margin and fps
