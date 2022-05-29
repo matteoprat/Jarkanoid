@@ -11,8 +11,10 @@ public enum GameSettings {
     BLK_HEIGHT(28),
     MARGIN_LEFT(52),
     MARGIN_RIGHT(667),
-    MARGIN_TOP(90),
-    MARGIN_BOTTOM(903),
+    MARGIN_TOP(861),
+    MARGIN_BOTTOM(50),
+    BALL_WIDTH(19),
+    BALL_HEIGHT(15),
     FPS(30);
 
     public final int amount;
