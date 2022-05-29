@@ -26,7 +26,7 @@ public class Paddle {
         rect.width = 112;
         rect.height = 28;
         rect.x = GameSettings.SCR_WIDTH.amount / 2 - rect.width / 2;
-        rect.y = GameSettings.MARGIN_BOTTOM.amount + ((2*GameSettings.BLK_HEIGHT.amount)-rect.height);
+        rect.y = GameSettings.MARGIN_BOTTOM.amount + (2*GameSettings.BLK_HEIGHT.amount);
         paddleTexture = normalTexture;
     }
 
@@ -61,14 +61,14 @@ public class Paddle {
         powerUpCycle = 0;
     }
 
-    public void moveRight() {
+    public boolean moveRight() {
         rect.x += speed;
-        checkBoundaries();
+        return checkBoundaries();
     }
 
-    public void moveLeft() {
+    public boolean moveLeft() {
         rect.x -= speed;
-        checkBoundaries();
+        return checkBoundaries();
     }
 
     public float getX() {
@@ -91,18 +91,20 @@ public class Paddle {
         return paddleTexture;
     }
 
-    private void checkBoundaries() {
+    private boolean checkBoundaries() {
         if (rect.x < GameSettings.MARGIN_LEFT.amount) {
             rect.x = GameSettings.MARGIN_LEFT.amount;
-            return;
+            return false;
         }
 
         if (rect.x + rect.width > GameSettings.MARGIN_RIGHT.amount) {
             rect.x = GameSettings.MARGIN_RIGHT.amount - rect.width;
+            return false;
         }
+        return true;
     }
 
-    public float getBounceAngle(float ballX, int ballWidth) {
+    public float getBounceAngle(float ballX, float ballWidth) {
         int max_angle = 8;
         float pointOfCollision = ((ballX + ballWidth) / 2) - ((rect.x + rect.width) / 2);
         float mid = (rect.width / 2) + Math.abs(pointOfCollision);

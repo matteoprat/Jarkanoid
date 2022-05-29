@@ -8,7 +8,7 @@ public class Ball {
     private final Rectangle rect = new Rectangle();
     private int speed = 12;
     private int direction = 0;
-    private int angleX = -3;
+    private float angleX = -3;
     private int x;
     private int y;
 
@@ -20,11 +20,15 @@ public class Ball {
 
     public void resetXY() {
         rect.x = GameSettings.SCR_WIDTH.amount / 2 - rect.width / 2;
-        rect.y = GameSettings.MARGIN_BOTTOM.amount + ((2*GameSettings.BLK_HEIGHT.amount)+20-rect.height);
+        rect.y = GameSettings.MARGIN_BOTTOM.amount + ((2*GameSettings.BLK_HEIGHT.amount)+28);
     }
 
-    public void centerOnPaddle(float paddleX, float paddleWidth) {
-        rect.x =  paddleX + paddleWidth / 2 - rect.width / 2;
+    public void followPaddleRight() {
+        rect.x += 8;
+    }
+
+    public void followPaddleLeft() {
+        rect.x -= 8;
     }
 
     public void launch() {
@@ -75,6 +79,12 @@ public class Ball {
         speed+=1;
     }
 
+    public void bounceOnPaddle(float angle) {
+        angleX = angle * -1;
+        direction = direction * -1;
+        speed += 1;
+    }
+
     private void bounceY() {
         direction = direction * -1;
         speed+=1;
@@ -88,8 +98,16 @@ public class Ball {
         return rect.y;
     }
 
+    public float getWidth() {
+        return rect.width;
+    }
+
     public int getDirection() {
         return direction;
+    }
+
+    public Rectangle getRect() {
+        return rect;
     }
 
 
