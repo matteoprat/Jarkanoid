@@ -56,7 +56,7 @@ public class LevelMap {
         brickList.add(
                 new Brick(
                         GameSettings.MARGIN_LEFT.amount + (column * GameSettings.BLK_WIDTH.amount),
-                        GameSettings.MARGIN_TOP.amount + (row * GameSettings.BLK_HEIGHT.amount),
+                        GameSettings.MARGIN_TOP.amount - ((row+1) * GameSettings.BLK_HEIGHT.amount),
                         color
                 )
         );
