@@ -16,20 +16,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Jarkanoid extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	Texture bg;
-	Texture ballTexture;
-	Paddle paddle;
-	LevelMap map;
-	List<Ball> balls;
-	int currentLevel = 1;
+	private SpriteBatch batch;
+	private Texture img;
+	private Texture bg;
+	private Texture ballTexture;
+	private Paddle paddle;
+	private LevelMap level;
+	private List<Ball> balls;
+	private int lives = 3;
+	private int currentLevel = 1;
 	
 	@Override
 	public void create () {
-		map = new LevelMap();
-		map.populateLevel(currentLevel);
-		System.out.println("Total bricks: "+ map.getBrickCount());
+		level = new LevelMap();
+		level.populateLevel(currentLevel);
 		batch = new SpriteBatch();
 		img = new Texture("graphics/background.png");
 		bg = new Texture("graphics/bg_level0.png");
@@ -42,7 +42,13 @@ public class Jarkanoid extends ApplicationAdapter {
 	@Override
 	public void render () {
 		ScreenUtils.clear(1, 0, 0, 1);
-		System.out.println(balls.size());
+		if (balls.size() == 0) {
+			lives--;
+			if (lives > 0) {
+				balls.add(new Ball());
+				paddle = new Paddle();
+			}
+		}
 		moveBalls();
 
 		batch.begin();
@@ -50,9 +56,8 @@ public class Jarkanoid extends ApplicationAdapter {
 		batch.draw(img, 0, 0);
 		for (Ball ball : balls) {
 			batch.draw(ballTexture, ball.getX(), ball.getY());
-			System.out.println(ball.getX());
 		}
-		for (Brick brick : map.getBrickList()) {
+		for (Brick brick : level.getBrickList()) {
 			batch.draw(brick.getTexture(), brick.getXPos(), brick.getYPos());
 		}
 		batch.draw(paddle.getTexture(), paddle.getX(), paddle.getY());
@@ -67,20 +72,36 @@ public class Jarkanoid extends ApplicationAdapter {
 	}
 
 	private void keyListener() {
-		if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-			paddle.moveLeft();
+		if(Gdx.input.isKeyPressed(Keys.SPACE)) {
 			for (Ball ball : balls) {
 				if (ball.getDirection() == 0) {
-					ball.centerOnPaddle(paddle.getX(), paddle.getWidth());
+					ball.launch();
 				}
 			}
+		} else if(Gdx.input.isKeyPressed(Keys.LEFT)) {
+			if(!paddle.moveLeft()) {
+				return;
+			}
+			followPaddle('l');
+		} else if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
+			if (!paddle.moveRight()) {
+				return;
+			}
+			followPaddle('r');
 		}
-		if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			paddle.moveRight();
-			for (Ball ball : balls) {
-				if (ball.getDirection() == 0) {
-					ball.centerOnPaddle(paddle.getX(), paddle.getWidth());
-				}
+	}
+
+	private void followPaddle(char direction) {
+		for (Ball ball : balls) {
+			if (ball.getDirection() != 0) {
+				continue;
+			}
+			if (direction == 'r') {
+				ball.followPaddleRight();
+				continue;
+			}
+			if (direction == 'l') {
+				ball.followPaddleLeft();
 			}
 		}
 	}
@@ -97,8 +118,20 @@ public class Jarkanoid extends ApplicationAdapter {
 				continue;
 			}
 			// check collision with paddle
-
+			if (ball.getRect().overlaps(paddle.getRect())) {
+				ball.bounceOnPaddle(paddle.getBounceAngle(ball.getX(), ball.getWidth()));
+			}
 			// check collisions with bricks
+			Brick brickToRemove = null;
+			for (Brick brick : level.getBrickList()) {
+				if (ball.getRect().overlaps(brick.getRect())) {
+					brickToRemove = brick;
+					break;
+				}
+			}
+			if (brickToRemove != null) {
+				level.removeBrick(brickToRemove);
+			}
 		}
 		for (Ball ball : toDelete) {
 			balls.remove(ball);
