@@ -1,34 +1,33 @@
 package entities;
 
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.graphics.Texture;
 import settings.GameSettings;
 
-public class Ball {
+public class Ball extends ArkanoidSprite {
 
-    private final Rectangle rect = new Rectangle();
     private int speed = 12;
     private int direction = 0;
     private float angleX = -3;
-    private int x;
-    private int y;
+    private static final int maxSpeed = 16;
 
-    public Ball() {
-        rect.width = 15;
-        rect.height = 19;
+    public Ball(Texture texture) {
+        super(texture);
+        rect.width = texture.getWidth();
+        rect.height = texture.getHeight();
         resetXY();
     }
 
     public void resetXY() {
-        rect.x = GameSettings.SCR_WIDTH.amount / 2 - rect.width / 2;
+        rect.x = GameSettings.SCR_WIDTH.amount / 2.0f - rect.width / 2;
         rect.y = GameSettings.MARGIN_BOTTOM.amount + ((2*GameSettings.BLK_HEIGHT.amount)+28);
     }
 
     public void followPaddleRight() {
-        rect.x += 8;
+        rect.x += 4;
     }
 
     public void followPaddleLeft() {
-        rect.x -= 8;
+        rect.x -= 4;
     }
 
     public void launch() {
@@ -41,14 +40,6 @@ public class Ball {
         return checkBoundaries();
     }
 
-    public void moveLeft() {
-        rect.x -= 8;
-    }
-
-    public void moveRight() {
-        rect.x += 8;
-    }
-
     private boolean checkBoundaries() {
 
         boolean ballLost = false;
@@ -57,59 +48,52 @@ public class Ball {
         if (rect.x < GameSettings.MARGIN_LEFT.amount) {
             rect.x = GameSettings.MARGIN_LEFT.amount;
             bounceX();
-        } else if (rect.x + rect.width >= GameSettings.MARGIN_RIGHT.amount) {
-            rect.x = GameSettings.MARGIN_RIGHT.amount - rect.width;
+        } else if (rect.x + texture.getWidth() >= GameSettings.MARGIN_RIGHT.amount) {
+            rect.x = GameSettings.MARGIN_RIGHT.amount - texture.getWidth();
             bounceX();
         }
 
         // check top and bottom bounds
-        if (rect.y + rect.height >= GameSettings.MARGIN_TOP.amount) {
-            rect.y = GameSettings.MARGIN_TOP.amount - rect.height;
+        if (rect.y + texture.getHeight() >= GameSettings.MARGIN_TOP.amount) {
+            rect.y = GameSettings.MARGIN_TOP.amount - texture.getHeight();
             bounceY();
-        }
-        if (rect.y < GameSettings.MARGIN_BOTTOM.amount) {
+        } else if (rect.y < GameSettings.MARGIN_BOTTOM.amount) {
             ballLost = true;
         }
 
         return ballLost;
     }
 
+    public void applyCollision(boolean x, boolean y) {
+        if (x) {
+            bounceX();
+        }
+        if (y) {
+            bounceY();
+        }
+        increaseSpeed();
+    }
+
     private void bounceX() {
         angleX = angleX * -1;
-        speed+=1;
     }
 
     public void bounceOnPaddle(float angle) {
-        angleX = angle * -1;
+        angleX = angle;
         direction = direction * -1;
-        speed += 1;
+        increaseSpeed();
     }
 
     private void bounceY() {
         direction = direction * -1;
-        speed+=1;
-    }
-
-    public float getX() {
-        return rect.x;
-    }
-
-    public float getY() {
-        return rect.y;
-    }
-
-    public float getWidth() {
-        return rect.width;
     }
 
     public int getDirection() {
         return direction;
     }
 
-    public Rectangle getRect() {
-        return rect;
+    private void increaseSpeed() {
+        speed = (speed < maxSpeed) ? speed+1 : maxSpeed;
     }
-
-
 
 }

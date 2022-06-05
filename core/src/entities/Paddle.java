@@ -1,53 +1,58 @@
 package entities;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 import settings.GameSettings;
 
 import java.util.Random;
 
-public class Paddle {
+public class Paddle extends ArkanoidSprite {
 
     private int powerUpCycle = 0;
-    private final int speed = 8;
-    private final Rectangle rect = new Rectangle();
+    private final int speed = 4;
     private final Texture normalTexture = new Texture("assets/graphics/bar.png");
     private final Texture powerUpEnlargeTexture = new Texture("assets/graphics/bar_enlarge.png");
     private final Texture powerUpLaserTexture = new Texture("assets/graphics/bar_laser.png");
     private final Texture powerUpMagnetTexture = new Texture("assets/graphics/bar_magnet.png");
     private int activePowerUp = 0;
-    private Texture paddleTexture;
+
 
     public Paddle() {
+        super(new Texture("assets/graphics/bar.png"));
         startPaddle();
     }
 
     private void startPaddle() {
-        rect.width = 112;
-        rect.height = 28;
-        rect.x = GameSettings.SCR_WIDTH.amount / 2 - rect.width / 2;
+        texture = normalTexture;
+        rect.x = GameSettings.SCR_WIDTH.amount / 2.0f - texture.getWidth() / 2.0f;
         rect.y = GameSettings.MARGIN_BOTTOM.amount + (2*GameSettings.BLK_HEIGHT.amount);
-        paddleTexture = normalTexture;
+        updateRect();
+    }
+
+    private void updateRect() {
+        rect.width = texture.getWidth();
+        rect.height = texture.getHeight();
     }
 
     public void startPowerUp(PowerUp powerUp) {
         resetPowerUp();
         switch (powerUp.getPowerUpType()) {
             case 1:
-                rect.width = 182;
                 activePowerUp = 1;
                 powerUpCycle = 10*60;
-                paddleTexture = powerUpEnlargeTexture;
+                texture = powerUpEnlargeTexture;
+                updateRect();
                 break;
             case 2:
                 activePowerUp = 1;
                 powerUpCycle = 10*60;
-                paddleTexture = powerUpLaserTexture;
+                texture = powerUpLaserTexture;
+                updateRect();
                 break;
             case 3:
                 activePowerUp = 1;
                 powerUpCycle = 10*60;
-                paddleTexture = powerUpMagnetTexture;
+                texture = powerUpMagnetTexture;
+                updateRect();
                 break;
             default:
                 break;
@@ -55,8 +60,8 @@ public class Paddle {
     }
 
     private void resetPowerUp() {
-        rect.width = 112;
-        paddleTexture = normalTexture;
+        texture = normalTexture;
+        updateRect();
         activePowerUp = 0;
         powerUpCycle = 0;
     }
@@ -69,26 +74,6 @@ public class Paddle {
     public boolean moveLeft() {
         rect.x -= speed;
         return checkBoundaries();
-    }
-
-    public float getX() {
-        return rect.x;
-    }
-
-    public float getY() {
-        return rect.y;
-    }
-
-    public Rectangle getRect() {
-        return rect;
-    }
-
-    public float getWidth() {
-        return rect.width;
-    }
-
-    public Texture getTexture() {
-        return paddleTexture;
     }
 
     private boolean checkBoundaries() {
@@ -106,12 +91,16 @@ public class Paddle {
 
     public float getBounceAngle(float ballX, float ballWidth) {
         int max_angle = 8;
-        float pointOfCollision = ((ballX + ballWidth) / 2) - ((rect.x + rect.width) / 2);
-        float mid = (rect.width / 2) + Math.abs(pointOfCollision);
-        float new_angle = max_angle * (mid / rect.width) + (new Random().nextInt(2));
 
-        if (pointOfCollision <= 0) {
-            new_angle = new_angle * -1;
+        // The point of collision is the middle of ball position - the middle of paddle position
+        float pointOfCollision = (ballX + ballWidth / 2.0f) - (rect.x + texture.getWidth() / 2.0f);
+        float mid = (texture.getWidth() / 2.0f) + Math.abs(pointOfCollision);
+        float new_angle = max_angle * (mid / texture.getWidth());
+
+        if (mid <= 0) {
+            new_angle = new_angle * -1  + new Random().nextInt(2);
+        } else {
+            new_angle += new Random().nextInt(2);
         }
 
         return new_angle;
