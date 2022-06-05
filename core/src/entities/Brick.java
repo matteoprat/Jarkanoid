@@ -28,10 +28,6 @@ public class Brick extends ArkanoidSprite {
         life = (color == 's') ? 3 : (color == 'G') ? -1 : 1;
     }
 
-    public void beenHit() {
-        life = life-1;
-    }
-
     public boolean isWithPowerUp() {
         return withPowerUp;
     }
