@@ -1,6 +1,8 @@
 package utils;
 
+import com.badlogic.gdx.graphics.Texture;
 import entities.Brick;
+import settings.BrickTextures;
 import settings.GameSettings;
 
 import java.io.File;
@@ -57,7 +59,8 @@ public class LevelMap {
                 new Brick(
                         GameSettings.MARGIN_LEFT.amount + (column * GameSettings.BLK_WIDTH.amount),
                         GameSettings.MARGIN_TOP.amount - ((row+1) * GameSettings.BLK_HEIGHT.amount),
-                        color
+                        color,
+                        getTexture(color)
                 )
         );
     }
@@ -81,5 +84,32 @@ public class LevelMap {
         }
         brickList.remove(brick);
         brickCount--;
+    }
+
+    private Texture getTexture(char color) {
+        switch(color) {
+            case 'w':
+                return BrickTextures.WHITE.texture;
+            case 'o':
+                return BrickTextures.ORANGE.texture;
+            case 'c':
+                return BrickTextures.LIGHT_BLUE.texture;
+            case 'g':
+                return BrickTextures.GREEN.texture;
+            case 'r':
+                return BrickTextures.RED.texture;
+            case 'b':
+                return BrickTextures.BLUE.texture;
+            case 'p':
+                return BrickTextures.PINK.texture;
+            case 'y':
+                return BrickTextures.YELLOW.texture;
+            case 's':
+                return BrickTextures.SILVER.texture;
+            case 'G':
+            default:
+                return BrickTextures.GOLD.texture;
+
+        }
     }
 }
