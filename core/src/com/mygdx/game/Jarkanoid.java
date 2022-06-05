@@ -19,12 +19,13 @@ public class Jarkanoid extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private Texture img;
 	private Texture bg;
-	private Texture ballTexture;
 	private Paddle paddle;
 	private LevelMap level;
 	private List<Ball> balls;
+	private Texture ballImg;
 	private int lives = 3;
-	private int currentLevel = 1;
+	private int currentLevel = 3;
+	private int score = 0;
 	
 	@Override
 	public void create () {
@@ -33,10 +34,10 @@ public class Jarkanoid extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		img = new Texture("graphics/background.png");
 		bg = new Texture("graphics/bg_level0.png");
-		ballTexture = new Texture("graphics/ball.png");
+		ballImg = new Texture("graphics/ball.png");
 		paddle = new Paddle();
 		balls = new ArrayList<>();
-		balls.add(new Ball());
+		balls.add(new Ball(ballImg));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class Jarkanoid extends ApplicationAdapter {
 		if (balls.size() == 0) {
 			lives--;
 			if (lives > 0) {
-				balls.add(new Ball());
+				balls.add(new Ball(ballImg));
 				paddle = new Paddle();
 			}
 		}
@@ -55,12 +56,12 @@ public class Jarkanoid extends ApplicationAdapter {
 		batch.draw(bg, GameSettings.MARGIN_LEFT.amount, GameSettings.MARGIN_BOTTOM.amount);
 		batch.draw(img, 0, 0);
 		for (Ball ball : balls) {
-			batch.draw(ballTexture, ball.getX(), ball.getY());
+			batch.draw(ball.getTexture(), ball.getLeft(), ball.getBottom());
 		}
 		for (Brick brick : level.getBrickList()) {
-			batch.draw(brick.getTexture(), brick.getXPos(), brick.getYPos());
+			batch.draw(brick.getTexture(), brick.getLeft(), brick.getBottom());
 		}
-		batch.draw(paddle.getTexture(), paddle.getX(), paddle.getY());
+		batch.draw(paddle.getTexture(), paddle.getLeft(), paddle.getBottom());
 		batch.end();
 		keyListener();
 	}
@@ -119,22 +120,36 @@ public class Jarkanoid extends ApplicationAdapter {
 			}
 			// check collision with paddle
 			if (ball.getRect().overlaps(paddle.getRect())) {
-				ball.bounceOnPaddle(paddle.getBounceAngle(ball.getX(), ball.getWidth()));
+				ball.bounceOnPaddle(paddle.getBounceAngle(ball.getLeft(), ball.getTexture().getWidth()));
 			}
 			// check collisions with bricks
 			Brick brickToRemove = null;
 			for (Brick brick : level.getBrickList()) {
-				if (ball.getRect().overlaps(brick.getRect())) {
-					brickToRemove = brick;
-					break;
+				// If there is no collision, continue to next brick
+				if (!ball.getRect().overlaps(brick.getRect())) {
+					continue;
 				}
+
+				// check where the ball collide
+				boolean collideX = (brick.getLeft() > ball.getLeft() && brick.getLeft() <= ball.getRight()) || (brick.getRight() > ball.getLeft() && brick.getRight() <= ball.getRight());
+				boolean collideY = (brick.getBottom() > ball.getBottom() && brick.getBottom() < ball.getTop()) || (brick.getTop() < ball.getTop() && brick.getTop() > ball.getBottom());
+
+				ball.applyCollision(collideX, collideY);
+
+				brickToRemove = brick;
+				break;
 			}
 			if (brickToRemove != null) {
-				level.removeBrick(brickToRemove);
+				brickToRemove.decreaseLife();
+				if (brickToRemove.getLife() == 0) {
+					//score += brickToRemove.getScore();
+					level.removeBrick(brickToRemove);
+				}
 			}
 		}
 		for (Ball ball : toDelete) {
 			balls.remove(ball);
 		}
 	}
+
 }
