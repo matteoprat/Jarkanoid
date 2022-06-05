@@ -21,7 +21,7 @@ public class Paddle extends ArkanoidSprite {
         startPaddle();
     }
 
-    private void startPaddle() {
+    public void startPaddle() {
         texture = normalTexture;
         rect.x = GameSettings.SCR_WIDTH.amount / 2.0f - texture.getWidth() / 2.0f;
         rect.y = GameSettings.MARGIN_BOTTOM.amount + (2*GameSettings.BLK_HEIGHT.amount);
@@ -87,23 +87,6 @@ public class Paddle extends ArkanoidSprite {
             return false;
         }
         return true;
-    }
-
-    public float getBounceAngle(float ballX, float ballWidth) {
-        int max_angle = 8;
-
-        // The point of collision is the middle of ball position - the middle of paddle position
-        float pointOfCollision = (ballX + ballWidth / 2.0f) - (rect.x + texture.getWidth() / 2.0f);
-        float mid = (texture.getWidth() / 2.0f) + Math.abs(pointOfCollision);
-        float new_angle = max_angle * (mid / texture.getWidth());
-
-        if (mid <= 0) {
-            new_angle = new_angle * -1  + new Random().nextInt(2);
-        } else {
-            new_angle += new Random().nextInt(2);
-        }
-
-        return new_angle;
     }
 
     public int activePowerUp() {

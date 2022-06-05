@@ -5,10 +5,10 @@ import settings.GameSettings;
 
 public class Ball extends ArkanoidSprite {
 
-    private int speed = 12;
+    private int speed = 6;
     private int direction = 0;
     private float angleX = -3;
-    private static final int maxSpeed = 16;
+    private static final int maxSpeed = 11;
 
     public Ball(Texture texture) {
         super(texture);
@@ -94,6 +94,14 @@ public class Ball extends ArkanoidSprite {
 
     private void increaseSpeed() {
         speed = (speed < maxSpeed) ? speed+1 : maxSpeed;
+    }
+
+    public void setLeft(float left) {
+        rect.x = left;
+    }
+
+    public void setBottom(float bottom) {
+        rect.y = bottom;
     }
 
 }

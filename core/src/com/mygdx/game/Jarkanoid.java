@@ -10,6 +10,7 @@ import entities.Ball;
 import entities.Brick;
 import entities.Paddle;
 import settings.GameSettings;
+import utils.Collision;
 import utils.LevelMap;
 
 import java.util.ArrayList;
@@ -24,8 +25,9 @@ public class Jarkanoid extends ApplicationAdapter {
 	private List<Ball> balls;
 	private Texture ballImg;
 	private int lives = 3;
-	private int currentLevel = 3;
+	private int currentLevel = 1;
 	private int score = 0;
+	private final Collision collisionHandler = new Collision();
 	
 	@Override
 	public void create () {
@@ -47,7 +49,7 @@ public class Jarkanoid extends ApplicationAdapter {
 			lives--;
 			if (lives > 0) {
 				balls.add(new Ball(ballImg));
-				paddle = new Paddle();
+				paddle.startPaddle();
 			}
 		}
 		moveBalls();
@@ -120,7 +122,7 @@ public class Jarkanoid extends ApplicationAdapter {
 			}
 			// check collision with paddle
 			if (ball.getRect().overlaps(paddle.getRect())) {
-				ball.bounceOnPaddle(paddle.getBounceAngle(ball.getLeft(), ball.getTexture().getWidth()));
+				ball.bounceOnPaddle(collisionHandler.getBounceAngle(ball, paddle));
 			}
 			// check collisions with bricks
 			Brick brickToRemove = null;
@@ -131,8 +133,8 @@ public class Jarkanoid extends ApplicationAdapter {
 				}
 
 				// check where the ball collide
-				boolean collideX = (brick.getLeft() > ball.getLeft() && brick.getLeft() <= ball.getRight()) || (brick.getRight() > ball.getLeft() && brick.getRight() <= ball.getRight());
-				boolean collideY = (brick.getBottom() > ball.getBottom() && brick.getBottom() < ball.getTop()) || (brick.getTop() < ball.getTop() && brick.getTop() > ball.getBottom());
+				boolean collideX = collisionHandler.collideWithBrickHorizontal(ball, brick);
+				boolean collideY = collisionHandler.collideWithBrickVertical(ball, brick);
 
 				ball.applyCollision(collideX, collideY);
 
